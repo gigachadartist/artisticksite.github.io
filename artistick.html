@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>artistick — cheat developer</title>
+<meta name="description" content="artistick — разработчик читов, реверс-инжиниринг, красивые визуалы и приватные проекты." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#05060a;
+    --bg2:#0a0c14;
+    --panel:rgba(255,255,255,.035);
+    --stroke:rgba(255,255,255,.08);
+    --text:#e9ecf5;
+    --muted:#8b93a7;
+    --neon:#7c5cff;
+    --neon2:#00e5ff;
+    --neon3:#ff3d9a;
+    --radius:20px;
+    --max:1180px;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:rgba(124,92,255,.4);color:#fff}
+
+  /* фон-градиенты */
+  .bg-fx{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none}
+  .blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.55;animation:float 18s ease-in-out infinite}
+  .blob.a{width:620px;height:620px;background:#4a2bff;top:-220px;left:-160px}
+  .blob.b{width:520px;height:520px;background:#00b8d4;top:20%;right:-200px;animation-delay:-6s}
+  .blob.c{width:460px;height:460px;background:#ff2d87;bottom:-180px;left:30%;animation-delay:-12s;opacity:.35}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(40px,-40px) scale(1.12)}}
+
+  .grid-overlay{
+    position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.35;
+    background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);
+    background-size:64px 64px;
+    mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 75%);
+    -webkit-mask-image:radial-gradient(circle at 50% 30%,#000 0%,transparent 75%);
+  }
+
+  .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+
+  /* NAV */
+  header{
+    position:fixed;top:0;left:0;right:0;z-index:100;
+    backdrop-filter:blur(16px);
+    background:rgba(5,6,10,.55);
+    border-bottom:1px solid var(--stroke);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;height:70px}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:1.05rem}
+  .logo .dot{
+    width:12px;height:12px;border-radius:50%;
+    background:linear-gradient(135deg,var(--neon),var(--neon2));
+    box-shadow:0 0 16px var(--neon);
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+  .logo span{background:linear-gradient(90deg,#fff,#b7a8ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  .nav-links{display:flex;gap:8px;align-items:center}
+  .nav-links a{
+    color:var(--muted);text-decoration:none;font-size:.9rem;font-weight:500;
+    padding:8px 14px;border-radius:10px;transition:.25s;
+  }
+  .nav-links a:hover{color:#fff;background:var(--panel)}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 22px;border-radius:12px;font-weight:600;font-size:.92rem;
+    text-decoration:none;transition:.3s;border:1px solid transparent;cursor:pointer;
+  }
+  .btn-primary{
+    background:linear-gradient(135deg,var(--neon),#5b3cff);
+    color:#fff;box-shadow:0 8px 30px rgba(124,92,255,.45);
+  }
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(124,92,255,.65)}
+  .btn-ghost{background:var(--panel);border-color:var(--stroke);color:var(--text)}
+  .btn-ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-2px)}
+
+  /* HERO */
+  .hero{padding:160px 0 110px;position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:60px;align-items:center}
+
+  .badge{
+    display:inline-flex;align-items:center;gap:9px;
+    padding:7px 15px;border-radius:100px;font-size:.78rem;font-weight:600;
+    background:rgba(124,92,255,.12);border:1px solid rgba(124,92,255,.3);
+    color:#c3b5ff;margin-bottom:26px;letter-spacing:.02em;
+  }
+  .badge .live{width:7px;height:7px;border-radius:50%;background:#22e67a;box-shadow:0 0 10px #22e67a;animation:pulse 1.8s infinite}
+
+  h1{
+    font-size:clamp(2.6rem,6vw,4.4rem);
+    line-height:1.04;font-weight:900;letter-spacing:-.035em;margin-bottom:22px;
+  }
+  h1 .grad{
+    background:linear-gradient(120deg,#fff 10%,#a98bff 45%,#00e5ff 90%);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  }
+  .hero p.lead{font-size:1.1rem;color:var(--muted);max-width:520px;margin-bottom:36px}
+  .hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+
+  /* карточка-статы */
+  .stats-card{
+    background:var(--panel);border:1px solid var(--stroke);
+    border-radius:var(--radius);padding:28px;backdrop-filter:blur(20px);
+    position:relative;overflow:hidden;
+  }
+  .stats-card::before{
+    content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;
+    background:linear-gradient(135deg,rgba(124,92,255,.6),transparent 40%,rgba(0,229,255,.5));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;
+  }
+  .stat-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .stat{
+    background:rgba(0,0,0,.3);border:1px solid var(--stroke);
+    border-radius:14px;padding:18px;transition:.3s;
+  }
+  .stat:hover{border-color:rgba(124,92,255,.5);transform:translateY(-3px)}
+  .stat .num{font-family:'JetBrains Mono',monospace;font-size:1.7rem;font-weight:600;color:#fff;letter-spacing:-.02em}
+  .stat .lbl{font-size:.76rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+  .stat .num.accent{background:linear-gradient(90deg,var(--neon),var(--neon2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+  /* SECTION */
+  section{padding:100px 0;position:relative}
+  .sec-head{margin-bottom:52px;max-width:640px}
+  .kicker{
+    font-family:'JetBrains Mono',monospace;font-size:.8rem;color:var(--neon2);
+    text-transform:uppercase;letter-spacing:.22em;margin-bottom:14px;display:block;
+  }
+  h2{font-size:clamp(1.9rem,4vw,2.9rem);font-weight:800;letter-spacing:-.03em;line-height:1.12;margin-bottom:16px}
+  .sec-head p{color:var(--muted);font-size:1.02rem}
+
+  /* SKILLS */
+  .skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+  .skill{
+    background:var(--panel);border:1px solid var(--stroke);border-radius:var(--radius);
+    padding:28px;transition:.35s;position:relative;overflow:hidden;
+  }
+  .skill:hover{transform:translateY(-6px);border-color:rgba(124,92,255,.45);background:rgba(124,92,255,.06)}
+  .skill .ic{
+    width:48px;height:48px;border-radius:13px;display:grid;place-items:center;
+    background:linear-gradient(135deg,rgba(124,92,255,.2),rgba(0,229,255,.12));
+    border:1px solid var(--stroke);margin-bottom:18px;font-size:1.4rem;
+  }
+  .skill h3{font-size:1.08rem;font-weight:700;margin-bottom:8px}
+  .skill p{font-size:.9rem;color:var(--muted);line-height:1.6}
+
+  /* PROJECTS */
+  .projects{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px}
+  .proj{
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+    border:1px solid var(--stroke);border-radius:var(--radius);padding:28px;
+    transition:.35s;display:flex;flex-direction:column;gap:14px;
+  }
+  .proj:hover{transform:translateY(-6px);border-color:rgba(0,229,255,.4);box-shadow:0 20px 60px -20px rgba(0,229,255,.25)}
+  .proj-top{display:flex;justify-content:space-between;align-items:center}
+  .proj .tag{
+    font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;
+    padding:5px 11px;border-radius:8px;
+  }
+  .tag.active{background:rgba(34,230,122,.14);color:#5ff0a3;border:1px solid rgba(34,230,122,.3)}
+  .tag.private{background:rgba(255,61,154,.12);color:#ff7ab8;border:1px solid rgba(255,61,154,.3)}
+  .tag.dev{background:rgba(255,193,7,.12);color:#ffd45e;border:1px solid rgba(255,193,7,.3)}
+  .proj h3{font-size:1.25rem;font-weight:700;letter-spacing:-.02em}
+  .proj p{font-size:.9rem;color:var(--muted);flex:1}
+  .proj .meta{display:flex;gap:16px;font-size:.78rem;color:var(--muted);font-family:'JetBrains Mono',monospace;border-top:1px solid var(--stroke);padding-top:14px}
+  .proj .meta span{display:flex;align-items:center;gap:6px}
+
+  /* ABOUT strip */
+  .about-box{
+    background:var(--panel);border:1px solid var(--stroke);border-radius:28px;
+    padding:56px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+    position:relative;overflow:hidden;
+  }
+  .about-box::after{
+    content:'';position:absolute;width:400px;height:400px;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,92,255,.25),transparent 70%);
+    right:-120px;top:-120px;pointer-events:none;
+  }
+  .about-box h2{margin-bottom:18px}
+  .about-box p{color:var(--muted);margin-bottom:16px}
+  .about-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .about-list li{display:flex;gap:12px;align-items:flex-start;font-size:.94rem}
+  .about-list .chk{
+    flex-shrink:0;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--neon),var(--neon2));font-size:.7rem;color:#000;font-weight:900;margin-top:2px;
+  }
+
+  /* CONTACT */
+  .contact{
+    text-align:center;padding:70px 40px;border-radius:28px;
+    background:linear-gradient(160deg,rgba(124,92,255,.14),rgba(0,229,255,.06));
+    border:1px solid rgba(124,92,255,.25);position:relative;overflow:hidden;
+  }
+  .contact h2{margin-bottom:14px}
+  .contact p{color:var(--muted);max-width:480px;margin:0 auto 34px}
+  .socials{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .soc{
+    display:flex;align-items:center;gap:9px;padding:12px 22px;border-radius:12px;
+    background:rgba(0,0,0,.35);border:1px solid var(--stroke);
+    color:var(--text);text-decoration:none;font-weight:600;font-size:.9rem;transition:.3s;
+  }
+  .soc:hover{transform:translateY(-3px);border-color:var(--neon);background:rgba(124,92,255,.12);box-shadow:0 10px 30px -10px var(--neon)}
+
+  footer{border-top:1px solid var(--stroke);padding:32px 0;margin-top:60px}
+  .foot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;color:var(--muted);font-size:.85rem}
+  .foot .mono{font-family:'JetBrains Mono',monospace}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* responsive */
+  @media(max-width:900px){
+    .hero-grid{grid-template-columns:1fr;gap:44px}
+    .hero{padding:130px 0 70px}
+    .about-box{grid-template-columns:1fr;padding:38px}
+    .nav-links a:not(.btn){display:none}
+  }
+  @media(max-width:520px){
+    .stat-row{grid-template-columns:1fr}
+    .hero-actions .btn{width:100%;justify-content:center}
+    .contact{padding:50px 24px}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-fx">
+  <div class="blob a"></div>
+  <div class="blob b"></div>
+  <div class="blob c"></div>
+</div>
+<div class="grid-overlay"></div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo"><span class="dot"></span><span>artistick</span></div>
+    <nav class="nav-links">
+      <a href="#skills">Навыки</a>
+      <a href="#projects">Проекты</a>
+      <a href="#about">Обо мне</a>
+      <a href="#contact" class="btn btn-primary" style="padding:9px 18px">Связаться</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="badge reveal"><span class="live"></span> Открыт к приватным заказам</div>
+      <h1 class="reveal">Привет, я <span class="grad">artistick</span><br>разработчик читов</h1>
+      <p class="lead reveal">Создаю приватные читы, занимаюсь реверс-инжинирингом и делаю упор на красивые визуалы, стабильность и чистый код. Всё с вниманием к деталям.</p>
+      <div class="hero-actions reveal">
+        <a href="#projects" class="btn btn-primary">Смотреть проекты →</a>
+        <a href="#contact" class="btn btn-ghost">Связаться</a>
+      </div>
+    </div>
+
+    <div class="stats-card reveal">
+      <div class="stat-row">
+        <div class="stat">
+          <div class="num accent" data-count="4">0</div>
+          <div class="lbl">года в разработке</div>
+        </div>
+        <div class="stat">
+          <div class="num" data-count="27">0</div>
+          <div class="lbl">проектов</div>
+        </div>
+        <div class="stat">
+          <div class="num" data-count="1200" data-suffix="+">0</div>
+          <div class="lbl">пользователей</div>
+        </div>
+        <div class="stat">
+          <div class="num accent" data-count="99" data-suffix="%">0</div>
+          <div class="lbl">uptime</div>
+        </div>
+      </div>
+      <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--stroke);display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:.82rem;color:var(--muted)">Основной стек</span>
+        <span class="mono" style="font-size:.82rem;color:#c3b5ff">C++ · ImGui · .NET</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">// expertise</span>
+      <h2>Что я умею</h2>
+      <p>От низкоуровневого реверса до аккуратных UI — полный цикл разработки приватного софта.</p>
+    </div>
+    <div class="skills-grid">
+      <div class="skill reveal">
+        <div class="ic">⚙️</div>
+        <h3>Реверс-инжиниринг</h3>
+        <p>Анализ бинарей, работа с IDA/Ghidra, поиск смещений, восстановление структур и логики.</p>
+      </div>
+      <div class="skill reveal">
+        <div class="ic">🎯</div>
+        <h3>Внутриигровые читы</h3>
+        <p>ESP, aimbot, skin changer, memory-хуки, обход античитов на приватной основе.</p>
+      </div>
+      <div class="skill reveal">
+        <div class="ic">✨</div>
+        <h3>Визуалы и UI</h3>
+        <p>Кастомные ImGui-меню, плавные анимации, читаемые оверлеи и приятные глазу темы.</p>
+      </div>
+      <div class="skill reveal">
+        <div class="ic">🛡️</div>
+        <h3>Безопасность и обходы</h3>
+        <p>Обфускация, защита от детекта, криптография строк, работа с драйверами.</p>
+      </div>
+      <div class="skill reveal">
+        <div class="ic">🧩</div>
+        <h3>Архитектура</h3>
+        <p>Модульные системы, чистый C++/C#, грамотное разделение логики и интерфейса.</p>
+      </div>
+      <div class="skill reveal">
+        <div class="ic">🚀</div>
+        <h3>Приватные сборки</h3>
+        <p>Индивидуальные проекты под заказ, обновления под новые патчи, поддержка.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <span class="kicker">// portfolio</span>
+      <h2>Избранные проекты</h2>
+      <p>Несколько работ, которые лучше всего отражают подход к делу.</p>
+    </div>
+    <div class="projects">
+      <div class="proj reveal">
+        <div class="proj-top"><span class="tag active">Active</span><span class="mono" style="font-size:.75rem;color:var(--muted)">2024</span></div>
+        <h3>Nebula</h3>
+        <p>Приватный чит с полностью кастомным ImGui-меню, плавными анимациями и модульной системой фич. Упор на визуал и стабильность.</p>
+        <div class="meta"><span>● C++</span><span>● ImGui</span><span>● DX11</span></div>
+      </div>
+      <div class="proj reveal">
+        <div class="proj-top"><span class="tag private">Private</span><span class="mono" style="font-size:.75rem;color:var(--muted)">2024</span></div>
+        <h3>Spectre</h3>
+        <p>Внутренний проект для закрытого круга. Продвинутый aimbot с предиктом, ESP-оверлей и работа с драйвером.</p>
+        <div class="meta"><span>● C++</span><span>● Driver</span><span>● Kernel</span></div>
+      </div>
+      <div class="proj reveal">
+        <div class="proj-top"><span class="tag dev">In dev</span><span class="mono" style="font-size:.75rem;color:var(--muted)">2025</span></div>
+        <h3>Prism UI</h3>
+        <p>Библиотека красивых виджетов для ImGui: кастомные темы, блюр, тени и компоненты в едином стиле.</p>
+        <div class="meta"><span>● C++</span><span>● ImGui</span><span>● Open source</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="wrap">
+    <div class="about-box reveal">
+      <div>
+        <span class="kicker">// about</span>
+        <h2>Немного обо мне</h2>
+        <p>Занимаюсь разработкой читов уже несколько лет. Начинал с простых оверлеев, сейчас делаю приватные проекты с упором на качество, безопасность и эстетику.</p>
+        <p>Люблю чистый код, аккуратные интерфейсы и задачи, где нужно разобраться в чужой логике.</p>
+      </div>
+      <ul class="about-list">
+        <li><span class="chk">✓</span><span>Приватные заказы под конкретные задачи</span></li>
+        <li><span class="chk">✓</span><span>Регулярные обновления под патчи</span></li>
+        <li><span class="chk">✓</span><span>Аккуратные визуалы и понятный UI</span></li>
+        <li><span class="chk">✓</span><span>Конфиденциальность и NDA</span></li>
+        <li><span class="chk">✓</span><span>Поддержка после сдачи проекта</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="wrap">
+    <div class="contact reveal">
+      <span class="kicker" style="justify-content:center;display:block">// contact</span>
+      <h2>Есть идея или заказ?</h2>
+      <p>Напиши мне в удобной соцсети — обсудим задачу, сроки и детали. Отвечаю быстро.</p>
+      <div class="socials">
+        <a class="soc" href="https://t.me/" target="_blank" rel="noopener">✈️ Telegram</a>
+        <a class="soc" href="https://github.com/" target="_blank" rel="noopener">🐙 GitHub</a>
+        <a class="soc" href="https://discord.com/" target="_blank" rel="noopener">💬 Discord</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot">
+    <div class="mono">© <span id="year"></span> artistick — все права защищены</div>
+    <div class="mono">made with <span style="color:var(--neon3)">♥</span> &amp; clean code</div>
+  </div>
+</footer>
+
+<script>
+  // year
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transitionDelay=(i%3)*0.08+'s'; io.observe(el); });
+
+  // counters
+  const counters = document.querySelectorAll('[data-count]');
+  const cio = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      const el = e.target;
+      const target = +el.dataset.count;
+      const suffix = el.dataset.suffix || '';
+      const dur = 1400;
+      const start = performance.now();
+      function tick(now){
+        const p = Math.min((now-start)/dur,1);
+        const ease = 1 - Math.pow(1-p,3);
+        el.textContent = Math.floor(target*ease) + suffix;
+        if(p<1) requestAnimationFrame(tick);
+        else el.textContent = target + suffix;
+      }
+      requestAnimationFrame(tick);
+      cio.unobserve(el);
+    });
+  },{threshold:.5});
+  counters.forEach(c=>cio.observe(c));
+</script>
+</body>
+</html>
